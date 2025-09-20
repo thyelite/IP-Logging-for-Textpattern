@@ -22,9 +22,9 @@ Logs Textpattern visitor IP addresses (IPv4/IPv6) to `txp_log.ip_address` and di
 You can install the plugin in one of two ways:
 
 ### Option 1: Upload File
-1. Download `IP-Plugin.php`.
+1. Download `IP-plugin.php`.
 2. Go to the **Admin → Plugins** panel in Textpattern.
-3. Upload `IP-Plugin.php`.
+3. Upload `IP-plugin.php`.
 4. Activate the plugin.
 
 ### Option 2: Paste Code
