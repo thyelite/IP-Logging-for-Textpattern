@@ -1,2 +1,89 @@
-# IP-Logging-for-Textpattern
-Logs Textpattern visitor IP addresses (IPv4/IPv6) to txp_log.ip_address and displays them on the Visitor Logs panel.
+# IP Logging for Textpattern
+
+Logs Textpattern visitor IP addresses (IPv4/IPv6) to `txp_log.ip_address` and displays them on the **Visitor Logs** panel.
+
+---
+
+## Features
+- Captures and stores both **IPv4** and **IPv6** addresses.
+- Adds them to the `txp_log.ip_address` column (with proper `VARCHAR(45)` field and index).
+- Makes IPs visible in the **Visitor Logs** panel.
+
+---
+
+## Requirements
+- Textpattern CMS 4.8+  
+- MySQL/MariaDB with support for `VARCHAR(45)` fields  
+
+---
+
+## Installation
+
+You can install the plugin in one of two ways:
+
+### Option 1: Upload File
+1. Download `IP-Plugin.php`.
+2. Go to the **Admin → Plugins** panel in Textpattern.
+3. Upload `IP-Plugin.php`.
+4. Activate the plugin.
+
+### Option 2: Paste Code
+1. Copy the full plugin code below
+2. Go to the **Admin → Plugins** panel in Textpattern.
+3. Paste the code into the form field.
+4. Submit and activate the plugin.
+
+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
