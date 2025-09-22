@@ -123,7 +123,7 @@ function hfd_ip_detect()
    ========================================================= */
 if (txpinterface === 'admin') {
     // Server-side hooks across common variants
-    foreach (array('log','log_ui','lore_ui') as $event) {
+    foreach (array('log','log_ui','lore','lore_ui') as $event) {
         foreach (array('list.head','list_head') as $s) register_callback('hfd_ip_head_cell', $event, $s);
         foreach (array('list.row','list_row')   as $s) register_callback('hfd_ip_row_cell',  $event, $s);
     }
@@ -131,10 +131,17 @@ if (txpinterface === 'admin') {
     register_callback('hfd_ip_dom_helpers', 'admin_side', 'body_end');
 }
 
+/* Helper: am I on Visitor logs? (4.8 = log, 4.9 = lore) */
+function hfd_is_logs_panel()
+{
+    $ev = gps('event');
+    return ($ev === 'log' || $ev === 'lore');
+}
+
 /* Header cell: “IP Address” */
 function hfd_ip_head_cell($evt, $stp, $data, $rs)
 {
-    if (gps('event') !== 'log') return $data;
+    if (!hfd_is_logs_panel()) return $data;
     if (strpos($data, 'txp-list-col-ip_address') !== false) return $data;
 
     $th = "\n\t".'<th class="txp-list-col-ip_address" data-col="ip_address" scope="col">IP Address</th>';
@@ -146,7 +153,7 @@ function hfd_ip_head_cell($evt, $stp, $data, $rs)
 /* Row cell: populate with ip_address (robust row id detection). */
 function hfd_ip_row_cell($evt, $stp, $data, $rs)
 {
-    if (gps('event') !== 'log') return $data;
+    if (!hfd_is_logs_panel()) return $data;
     if (strpos($data, 'txp-list-col-ip_address') !== false) return $data;
 
     // 1) Try id from recordset
@@ -173,7 +180,7 @@ function hfd_ip_row_cell($evt, $stp, $data, $rs)
 /* DOM fallback + client-side fill: ensure header/cells exist; fill from a compact JSON map. */
 function hfd_ip_dom_helpers($evt, $stp)
 {
-    if (gps('event') !== 'log') return;
+    if (!hfd_is_logs_panel()) return;
 
     // Build a compact id->ip map for recent rows (no Ajax needed)
     $map = array();
