@@ -11,7 +11,7 @@ $plugin['flags']       = 2;    // PLUGIN_LIFECYCLE_NOTIFY (so install/enable cal
 if (0) {
 ?>
 # --- BEGIN PLUGIN HELP ---
-hfd_ip_log
+vis_ip_log
 ==========
 - Ensures `txp_log.ip_address` exists (VARCHAR 45 + index) on install/enable.
 - Captures IPv4/IPv6 (CF / X-Forwarded-For / X-Real-IP / REMOTE_ADDR).
@@ -31,16 +31,16 @@ if (!defined('txpinterface')) {
    ========================================================= */
 if (txpinterface === 'admin') {
     // Ensure column on install/enable
-    register_callback('hfd_ip_install_or_enable', 'plugin_lifecycle.hfd_ip_log', 'installed');
-    register_callback('hfd_ip_install_or_enable', 'plugin_lifecycle.hfd_ip_log', 'enabled');
+    register_callback('vis_ip_install_or_enable', 'plugin_lifecycle.vis_ip_log', 'installed');
+    register_callback('vis_ip_install_or_enable', 'plugin_lifecycle.vis_ip_log', 'enabled');
     // Safety net: also verify on each admin page load
-    register_callback('hfd_ip_admin_ensure_column', 'admin_side', 'head_end');
+    register_callback('vis_ip_admin_ensure_column', 'admin_side', 'head_end');
 }
 
-function hfd_ip_install_or_enable($evt, $step){ hfd_ip_ensure_column(); }
-function hfd_ip_admin_ensure_column($evt, $step){ hfd_ip_ensure_column(); }
+function vis_ip_install_or_enable($evt, $step){ vis_ip_ensure_column(); }
+function vis_ip_admin_ensure_column($evt, $step){ vis_ip_ensure_column(); }
 
-function hfd_ip_ensure_column()
+function vis_ip_ensure_column()
 {
     $tbl = safe_pfx('txp_log');
     $rs  = safe_query("SHOW COLUMNS FROM `{$tbl}` LIKE 'ip_address'");
@@ -54,16 +54,16 @@ function hfd_ip_ensure_column()
    PUBLIC: CAPTURE & STORE IP
    ========================================================= */
 if (txpinterface === 'public') {
-    register_callback('hfd_ip_log_capture', 'log_hit');          // tolerant (2 or 3 args)
-    register_callback('hfd_ip_after_render', 'textpattern_end'); // post-insert fallback
+    register_callback('vis_ip_log_capture', 'log_hit');          // tolerant (2 or 3 args)
+    register_callback('vis_ip_after_render', 'textpattern_end'); // post-insert fallback
 }
 
 /* Pre-insert attempt (if TXP passes the log row by-ref). */
-function hfd_ip_log_capture($evt=null, $stp=null, &$row=null)
+function vis_ip_log_capture($evt=null, $stp=null, &$row=null)
 {
-    $ip = hfd_ip_detect();
+    $ip = vis_ip_detect();
     if (!$ip) return;
-    $GLOBALS['hfd_ip_address'] = $ip; // stash for fallback
+    $GLOBALS['vis_ip_address'] = $ip; // stash for fallback
 
     if (is_array($row)) {
         $row['ip_address'] = $ip;
@@ -72,9 +72,9 @@ function hfd_ip_log_capture($evt=null, $stp=null, &$row=null)
 }
 
 /* Post-insert fallback: update newest matching row if needed. */
-function hfd_ip_after_render($evt=null, $stp=null)
+function vis_ip_after_render($evt=null, $stp=null)
 {
-    $ip = isset($GLOBALS['hfd_ip_address']) ? $GLOBALS['hfd_ip_address'] : hfd_ip_detect();
+    $ip = isset($GLOBALS['vis_ip_address']) ? $GLOBALS['vis_ip_address'] : vis_ip_detect();
     if (!$ip) return;
 
     $tbl  = safe_pfx('txp_log');
@@ -94,7 +94,7 @@ function hfd_ip_after_render($evt=null, $stp=null)
 }
 
 /* Determine client IP with proxy awareness (IPv4/IPv6). */
-function hfd_ip_detect()
+function vis_ip_detect()
 {
     $c = array();
     if (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) $c[] = $_SERVER['HTTP_CF_CONNECTING_IP'];
@@ -124,24 +124,24 @@ function hfd_ip_detect()
 if (txpinterface === 'admin') {
     // Server-side hooks across common variants
     foreach (array('log','log_ui','lore','lore_ui') as $event) {
-        foreach (array('list.head','list_head') as $s) register_callback('hfd_ip_head_cell', $event, $s);
-        foreach (array('list.row','list_row')   as $s) register_callback('hfd_ip_row_cell',  $event, $s);
+        foreach (array('list.head','list_head') as $s) register_callback('vis_ip_head_cell', $event, $s);
+        foreach (array('list.row','list_row')   as $s) register_callback('vis_ip_row_cell',  $event, $s);
     }
     // DOM fallback + client-side fill (no debug UI)
-    register_callback('hfd_ip_dom_helpers', 'admin_side', 'body_end');
+    register_callback('vis_ip_dom_helpers', 'admin_side', 'body_end');
 }
 
 /* Helper: am I on Visitor logs? (4.8 = log, 4.9 = lore) */
-function hfd_is_logs_panel()
+function vis_is_logs_panel()
 {
     $ev = gps('event');
     return ($ev === 'log' || $ev === 'lore');
 }
 
 /* Header cell: “IP Address” */
-function hfd_ip_head_cell($evt, $stp, $data, $rs)
+function vis_ip_head_cell($evt, $stp, $data, $rs)
 {
-    if (!hfd_is_logs_panel()) return $data;
+    if (!vis_is_logs_panel()) return $data;
     if (strpos($data, 'txp-list-col-ip_address') !== false) return $data;
 
     $th = "\n\t".'<th class="txp-list-col-ip_address" data-col="ip_address" scope="col">IP Address</th>';
@@ -151,9 +151,9 @@ function hfd_ip_head_cell($evt, $stp, $data, $rs)
 }
 
 /* Row cell: populate with ip_address (robust row id detection). */
-function hfd_ip_row_cell($evt, $stp, $data, $rs)
+function vis_ip_row_cell($evt, $stp, $data, $rs)
 {
-    if (!hfd_is_logs_panel()) return $data;
+    if (!vis_is_logs_panel()) return $data;
     if (strpos($data, 'txp-list-col-ip_address') !== false) return $data;
 
     // 1) Try id from recordset
@@ -178,9 +178,9 @@ function hfd_ip_row_cell($evt, $stp, $data, $rs)
 }
 
 /* DOM fallback + client-side fill: ensure header/cells exist; fill from a compact JSON map. */
-function hfd_ip_dom_helpers($evt, $stp)
+function vis_ip_dom_helpers($evt, $stp)
 {
-    if (!hfd_is_logs_panel()) return;
+    if (!vis_is_logs_panel()) return;
 
     // Build a compact id->ip map for recent rows (no Ajax needed)
     $map = array();
