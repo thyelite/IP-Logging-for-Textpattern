@@ -1,5 +1,5 @@
 <?php
-$plugin['name']        = 'IP_LOG_VIS';
+$plugin['name']        = 'VIS_IP_LOG';
 $plugin['version']     = '1';
 $plugin['author']      = 'C.S. Wilson';
 $plugin['author_uri']  = 'https://www.hobbiesfordays.com/';
